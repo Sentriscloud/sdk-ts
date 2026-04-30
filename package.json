@@ -1,0 +1,65 @@
+{
+  "name": "@sentrix/chain",
+  "version": "0.1.0",
+  "description": "Official TypeScript SDK for Sentrix Chain — typed wrappers around EVM JSON-RPC + native REST + WebSocket subscriptions.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./evm": {
+      "types": "./dist/evm/index.d.ts",
+      "import": "./dist/evm/index.js"
+    },
+    "./native": {
+      "types": "./dist/native/index.d.ts",
+      "import": "./dist/native/index.js"
+    },
+    "./bft": {
+      "types": "./dist/bft/index.d.ts",
+      "import": "./dist/bft/index.js"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "sentrix",
+    "blockchain",
+    "evm",
+    "typescript",
+    "sdk"
+  ],
+  "author": "SentrisCloud",
+  "license": "MIT",
+  "homepage": "https://sentrixchain.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sentriscloud/sdk-ts.git"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "peerDependencies": {
+    "viem": "^2.21.0"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/ws": "^8.5.13",
+    "typescript": "^5.7.2",
+    "viem": "^2.21.0",
+    "vitest": "^2.1.8"
+  }
+}
