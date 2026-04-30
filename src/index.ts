@@ -13,3 +13,4 @@ export * from "./network.js";
 export * as evm from "./evm/index.js";
 export * as native from "./native/index.js";
 export * as bft from "./bft/index.js";
+export { SentrixWallet } from "./wallet/index.js";
