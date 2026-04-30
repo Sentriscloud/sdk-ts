@@ -1,7 +1,7 @@
 {
   "name": "@sentrix/chain",
-  "version": "0.1.0",
-  "description": "Official TypeScript SDK for Sentrix Chain — typed wrappers around EVM JSON-RPC + native REST + WebSocket subscriptions.",
+  "version": "0.2.0-rc.0",
+  "description": "Official TypeScript SDK for Sentrix Chain \u2014 typed wrappers around EVM JSON-RPC + native REST + WebSocket subscriptions.",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -22,9 +22,17 @@
     "./bft": {
       "types": "./dist/bft/index.d.ts",
       "import": "./dist/bft/index.js"
+    },
+    "./wallet": {
+      "types": "./dist/wallet/index.d.ts",
+      "import": "./dist/wallet/index.js"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
@@ -53,7 +61,9 @@
     "viem": "^2.21.0"
   },
   "dependencies": {
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "@noble/secp256k1": "^2.2.0",
+    "@noble/hashes": "^1.6.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

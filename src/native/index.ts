@@ -149,6 +149,15 @@ export class SentrixNativeClient {
     return this.get("/mempool");
   }
 
+  // ── tx submit ────────────────────────────────────────────────
+  /** Submit a signed native tx via `POST /transactions`. Returns the
+   *  tx body the chain admitted (including the txid the chain computed,
+   *  which the SDK already filled in client-side — the chain's view is
+   *  authoritative for tie-breaking). Throws on non-2xx. */
+  async submitTx(tx: import("./tx.js").NativeTx): Promise<{ txid: string; status?: string }> {
+    return this.post(`/transactions`, tx);
+  }
+
   private async get<T>(path: string): Promise<T> {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), this.timeoutMs);
@@ -165,7 +174,29 @@ export class SentrixNativeClient {
       clearTimeout(timer);
     }
   }
+
+  private async post<T>(path: string, body: unknown): Promise<T> {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), this.timeoutMs);
+    try {
+      const res = await this.fetchImpl(`${this.baseUrl}${path}`, {
+        method: "POST",
+        signal: ctrl.signal,
+        headers: { "content-type": "application/json", "accept": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Sentrix REST POST ${path} → HTTP ${res.status} ${text}`);
+      }
+      return (await res.json()) as T;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
 }
+
+export * from "./tx.js";
 
 export function nativeClient(network: SentrixNetwork, opts: NativeClientOptions = {}): SentrixNativeClient {
   return new SentrixNativeClient(network, opts);
