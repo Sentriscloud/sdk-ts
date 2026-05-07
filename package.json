@@ -63,7 +63,7 @@
   "dependencies": {
     "ws": "^8.18.0",
     "@noble/secp256k1": "^2.2.0",
-    "@noble/hashes": "^1.6.0"
+    "@noble/hashes": "^2.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
