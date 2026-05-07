@@ -1,6 +1,6 @@
 {
   "name": "@sentrix/chain",
-  "version": "0.2.0-rc.0",
+  "version": "0.3.0-rc.0",
   "description": "Official TypeScript SDK for Sentrix Chain \u2014 typed wrappers around EVM JSON-RPC + native REST + WebSocket subscriptions.",
   "type": "module",
   "main": "./dist/index.js",
