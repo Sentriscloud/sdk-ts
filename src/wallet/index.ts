@@ -69,18 +69,28 @@ export class SentrixWallet {
    *  `txid`, `signature`, `public_key` from the digest. */
   static signingPayload(tx: Pick<NativeTx, "amount" | "chain_id" | "data" | "fee" | "from_address" | "nonce" | "timestamp" | "to_address">): string {
     // Keep field order identical to the Rust BTreeMap iteration order
-    // (alphabetical by key — note "from" comes before "nonce" alphabetically).
-    const ordered = {
-      amount: tx.amount,
-      chain_id: tx.chain_id,
-      data: tx.data,
-      fee: tx.fee,
-      from: tx.from_address,
-      nonce: tx.nonce,
-      timestamp: tx.timestamp,
-      to: tx.to_address,
-    };
-    return JSON.stringify(ordered);
+    // (alphabetical by key — "from" comes before "nonce" alphabetically).
+    //
+    // Audit 2026-05-07 H2: previously used JSON.stringify which throws on
+    // bigint AND silently rounded numbers > 2^53 in the pre-bigint era.
+    // Now we build the JSON string MANUALLY so bigint amounts are emitted
+    // as bare integer literals — matching Rust's serde_json u64 output
+    // byte-for-byte. Any drift here makes the sha256 differ → on-chain
+    // signature verify fails.
+    const intLit = (n: bigint): string => n.toString();
+    const strLit = (s: string): string => JSON.stringify(s);
+    return (
+      "{" +
+      `"amount":${intLit(tx.amount)},` +
+      `"chain_id":${intLit(tx.chain_id)},` +
+      `"data":${strLit(tx.data)},` +
+      `"fee":${intLit(tx.fee)},` +
+      `"from":${strLit(tx.from_address)},` +
+      `"nonce":${intLit(tx.nonce)},` +
+      `"timestamp":${intLit(tx.timestamp)},` +
+      `"to":${strLit(tx.to_address)}` +
+      "}"
+    );
   }
 
   /** Sign a tx — fills in `txid`, `signature`, `public_key`, returns the
