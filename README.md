@@ -1,5 +1,10 @@
 # @sentrix/chain
 
+[![CI](https://github.com/Sentriscloud/sdk-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/Sentriscloud/sdk-ts/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/Sentriscloud/sdk-ts)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/Sentriscloud/sdk-ts?include_prereleases&sort=semver)](https://github.com/Sentriscloud/sdk-ts/releases/latest)
+
+
 Official TypeScript SDK for **Sentrix Chain** (chain ID `7119` mainnet, `7120` testnet). Three independent surfaces under one package:
 
 - **`@sentrix/chain/evm`** — viem-based EVM client (the standard EVM dApp door)
