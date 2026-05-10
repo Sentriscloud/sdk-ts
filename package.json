@@ -26,15 +26,20 @@
     "./wallet": {
       "types": "./dist/wallet/index.d.ts",
       "import": "./dist/wallet/index.js"
+    },
+    "./grpc": {
+      "types": "./dist/grpc/index.d.ts",
+      "import": "./dist/grpc/index.js"
     }
   },
   "files": [
     "dist",
+    "src/grpc-proto",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && mkdir -p dist/grpc-proto && cp src/grpc-proto/*.proto dist/grpc-proto/",
     "dev": "tsc -p tsconfig.json --watch",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
@@ -63,7 +68,9 @@
   "dependencies": {
     "ws": "^8.18.0",
     "@noble/secp256k1": "^2.2.0",
-    "@noble/hashes": "^1.6.0"
+    "@noble/hashes": "^1.6.0",
+    "@grpc/grpc-js": "^1.12.0",
+    "@grpc/proto-loader": "^0.7.13"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
