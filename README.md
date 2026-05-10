@@ -5,13 +5,13 @@
 [![Latest release](https://img.shields.io/github/v/release/Sentriscloud/sdk-ts?include_prereleases&sort=semver)](https://github.com/Sentriscloud/sdk-ts/releases/latest)
 
 
-Official TypeScript SDK for **Sentrix Chain** (chain ID `7119` mainnet, `7120` testnet). Three independent surfaces under one package:
+Official TypeScript SDK for **Sentrix Chain** (chain ID `7119` mainnet, `7120` testnet). Five independent surfaces under one package — pick the one you actually need; tree-shaking drops the rest:
 
-- **`@sentrix/chain/evm`** — viem-based EVM client (the standard EVM dApp door)
-- **`@sentrix/chain/native`** — typed REST client for Sentrix-shaped endpoints (validators, epochs, BFT justification)
-- **`@sentrix/chain/bft`** — WebSocket subscription manager for all 9 channels
-
-Pick the surface you actually need; tree-shaking will drop the rest.
+- **`@sentrix/chain/evm`** — viem-based EVM client (standard EVM dApp door)
+- **`@sentrix/chain/native`** — typed REST client for Sentrix-shaped endpoints (validators, epochs, BFT justification, fork status)
+- **`@sentrix/chain/bft`** — WebSocket subscription manager for all 9 channels (newHeads, logs, sentrix_finalized, sentrix_jail, …) with keepalive ping + automatic reconnect + typed payloads
+- **`@sentrix/chain/wallet`** — secp256k1 keypair + Sentrix-native tx signing (same address as your MetaMask key — Sentrix derives addresses identically to Ethereum)
+- **`@sentrix/chain/grpc`** — Node-side gRPC client over `@grpc/grpc-js` for the chain's `sentrix.v1.Sentrix` service (getBlock, getBalance, getValidatorSet, getSupply, getMempool, streamEvents). Bundled `.proto` so version drift can't bite you.
 
 ## Install
 
@@ -85,6 +85,55 @@ The 9 channels available, all dispatched via `eth_subscribe`:
 
 > All sentrix-native channels go through `eth_subscribe` by channel name — there is **no** separate `sentrix_subscribe` method on the chain. Common confusion source.
 
+For typed payloads (instead of `unknown`):
+
+```ts
+await mgr.subscribeTyped("newHeads", {
+  onMessage: (head) => console.log(head.number, head.hash), // typed as NewHeadsPayload
+});
+```
+
+### Sign + broadcast a native Sentrix tx
+
+```ts
+import { wallet, native } from "@sentrix/chain";
+
+const w = wallet.SentrixWallet.fromPrivateKeyHex(process.env.PRIVATE_KEY!);
+const sentrix = native.nativeClient("mainnet");
+
+const tx = await wallet.buildAndSignTransfer(w, {
+  to: "0x0804a00f53fde72d46abd1db7ee3e97cbfd0a107",
+  amountSentri: 100_000_000n, // 1 SRX
+  feeSentri: 10_000n,         // 0.0001 SRX
+  nonce: await sentrix.nextNonce(w.address),
+  chainId: 7119,
+});
+const txid = await sentrix.broadcast(tx);
+```
+
+The wallet uses the same secp256k1 derivation as Ethereum — your MetaMask private key is also a Sentrix native private key, same address on both rails.
+
+### Read via gRPC (Node only)
+
+```ts
+import { GrpcClient } from "@sentrix/chain/grpc";
+
+const c = new GrpcClient("mainnet");
+const block = await c.getLatestBlock();
+const bal = await c.getBalance("0x4693b113e523A196d9579333c4ab8358e2656553");
+
+// Server-stream chain events
+for await (const ev of c.streamEvents([])) {
+  console.log(ev);
+}
+
+c.close();
+```
+
+The chain's `sentrix.v1.Sentrix` service mirrors the JSON-RPC + REST shape. v0.4+ adds `getValidatorSet` / `getSupply` / `getMempool` and a server-streaming `streamEvents` for push-style consumption without the WebSocket overhead. Older chain hosts return `Status::unimplemented` for the newer methods; the SDK forwards the error verbatim so callers can fall back to JSON-RPC / REST.
+
+> Browser consumers: `/grpc` is **Node-only** because `@grpc/grpc-js` needs raw HTTP/2. For browser dApps that want gRPC, the [sentrix-explorer-v2](https://github.com/Sentriscloud/sentrix-explorer-v2) repo has the working Rust + WASM + tonic-web pattern; or wire `grpc-web` npm directly against the same `grpc.sentrixchain.com:443` endpoint (Caddy transcodes between gRPC-Web ↔ gRPC).
+
 ## Network identity helpers
 
 ```ts
@@ -112,7 +161,7 @@ When you use `evm.httpClient(...).getBalance(...)` you get 18-decimal wei. When 
 
 ## Status
 
-`v0.1.0` — initial scaffold. Phase 1 covers the read surface for EVM + native + WS. Phase 2 will add transaction signing helpers (native Sentrix txs, not just EVM-via-viem).
+`v0.3.0-rc.0` — five-door surface: EVM (read + write via viem), native REST (typed read + nonce), BFT WebSocket (multiplexed subs + keepalive + typed payloads), wallet (secp256k1 + native tx signing), gRPC (Node-side typed client over the chain's `sentrix.v1.Sentrix` service).
 
 ## License
 
