@@ -1,7 +1,7 @@
 {
   "name": "@sentrix/chain",
   "version": "0.3.0-rc.0",
-  "description": "Official TypeScript SDK for Sentrix Chain \u2014 typed wrappers around EVM JSON-RPC + native REST + WebSocket subscriptions.",
+  "description": "Official TypeScript SDK for Sentrix Chain — typed wrappers around EVM JSON-RPC + native REST + WebSocket subscriptions.",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -30,6 +30,10 @@
     "./grpc": {
       "types": "./dist/grpc/index.d.ts",
       "import": "./dist/grpc/index.js"
+    },
+    "./grpc-web": {
+      "types": "./dist/grpc-web/index.d.ts",
+      "import": "./dist/grpc-web/index.js"
     }
   },
   "files": [
@@ -66,13 +70,18 @@
     "viem": "^2.48.8"
   },
   "dependencies": {
-    "ws": "^8.18.0",
-    "@noble/secp256k1": "^2.2.0",
-    "@noble/hashes": "^1.6.0",
     "@grpc/grpc-js": "^1.12.0",
-    "@grpc/proto-loader": "^0.7.13"
+    "@grpc/proto-loader": "^0.7.13",
+    "@noble/hashes": "^1.6.0",
+    "@noble/secp256k1": "^2.2.0",
+    "@protobuf-ts/grpcweb-transport": "^2.11.1",
+    "@protobuf-ts/runtime": "^2.11.1",
+    "@protobuf-ts/runtime-rpc": "^2.11.1",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@protobuf-ts/plugin": "^2.11.1",
+    "@protobuf-ts/protoc": "^2.11.1",
     "@types/node": "^22.10.0",
     "@types/ws": "^8.5.13",
     "typescript": "^5.7.2",

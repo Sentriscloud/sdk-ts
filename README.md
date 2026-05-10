@@ -12,6 +12,7 @@ Official TypeScript SDK for **Sentrix Chain** (chain ID `7119` mainnet, `7120` t
 - **`@sentrix/chain/bft`** — WebSocket subscription manager for all 9 channels (newHeads, logs, sentrix_finalized, sentrix_jail, …) with keepalive ping + automatic reconnect + typed payloads
 - **`@sentrix/chain/wallet`** — secp256k1 keypair + Sentrix-native tx signing (same address as your MetaMask key — Sentrix derives addresses identically to Ethereum)
 - **`@sentrix/chain/grpc`** — Node-side gRPC client over `@grpc/grpc-js` for the chain's `sentrix.v1.Sentrix` service (getBlock, getBalance, getValidatorSet, getSupply, getMempool, streamEvents). Bundled `.proto` so version drift can't bite you.
+- **`@sentrix/chain/grpc-web`** — browser-side equivalent over `@protobuf-ts/grpcweb-transport`. Same surface, same chain endpoint (`grpc.sentrixchain.com` — Caddy transcodes gRPC-Web ↔ native gRPC).
 
 ## Install
 
@@ -132,7 +133,22 @@ c.close();
 
 The chain's `sentrix.v1.Sentrix` service mirrors the JSON-RPC + REST shape. v0.4+ adds `getValidatorSet` / `getSupply` / `getMempool` and a server-streaming `streamEvents` for push-style consumption without the WebSocket overhead. Older chain hosts return `Status::unimplemented` for the newer methods; the SDK forwards the error verbatim so callers can fall back to JSON-RPC / REST.
 
-> Browser consumers: `/grpc` is **Node-only** because `@grpc/grpc-js` needs raw HTTP/2. For browser dApps that want gRPC, the [sentrix-explorer-v2](https://github.com/Sentriscloud/sentrix-explorer-v2) repo has the working Rust + WASM + tonic-web pattern; or wire `grpc-web` npm directly against the same `grpc.sentrixchain.com:443` endpoint (Caddy transcodes between gRPC-Web ↔ gRPC).
+> Browser consumers: use `@sentrix/chain/grpc-web` instead. Same surface, same chain endpoint — only the transport changes (`@protobuf-ts/grpcweb-transport` instead of `@grpc/grpc-js`). The `/grpc` subpath stays Node-only because `@grpc/grpc-js` needs raw HTTP/2 sockets browsers don't expose.
+
+### Read via gRPC-Web (browser)
+
+```ts
+import { GrpcWebClient } from "@sentrix/chain/grpc-web";
+
+const c = new GrpcWebClient("mainnet");
+const block = await c.getLatestBlock();
+
+for await (const ev of c.streamEvents([])) {
+  console.log(ev);
+}
+```
+
+Same chain endpoint as the Node `/grpc` subpath (`grpc.sentrixchain.com`) — Caddy at the edge transcodes gRPC-Web ↔ native gRPC via `tonic-web` so server code is identical.
 
 ## Network identity helpers
 
