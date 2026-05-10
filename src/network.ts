@@ -26,7 +26,7 @@ export interface SentrixChainSpec {
 }
 
 export const sentrixMainnet: SentrixChainSpec = {
-  name: "Sentrix Mainnet",
+  name: "Sentrix Chain",
   chainId: 7119,
   rpcUrl: "https://rpc.sentrixchain.com",
   wsUrl: "wss://rpc.sentrixchain.com/ws",
@@ -42,7 +42,7 @@ export const sentrixTestnet: SentrixChainSpec = {
   rpcUrl: "https://testnet-rpc.sentrixchain.com",
   wsUrl: "wss://testnet-rpc.sentrixchain.com/ws",
   restUrl: "https://testnet-rpc.sentrixchain.com",
-  explorerUrl: "https://scan.sentrixchain.com",
+  explorerUrl: "https://scan-testnet.sentrixchain.com",
   verifierUrl: "https://verify.sentrixchain.com",
   faucetUrl: "https://faucet.sentrixchain.com",
 };
