@@ -14,7 +14,7 @@
 //
 // Status: v0.1 skeleton. Handlers in crates/sentrix-grpc/src/lib.rs return
 // tonic::Status::unimplemented until main.rs integration lands. Reference
-// design doc: founder-private/audits/2026-05-05-grpc-service-proto-draft.md.
+// design: internal Sentrix Labs gRPC service-proto draft (2026-05-05).
 //
 import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
 import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
