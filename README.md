@@ -5,7 +5,7 @@
 [![Latest release](https://img.shields.io/github/v/release/Sentriscloud/sdk-ts?include_prereleases&sort=semver)](https://github.com/Sentriscloud/sdk-ts/releases/latest)
 
 
-Official TypeScript SDK for **Sentrix Chain** (chain ID `7119` mainnet, `7120` testnet). Five independent surfaces under one package — pick the one you actually need; tree-shaking drops the rest:
+Official TypeScript SDK for **Sentrix Chain** (chain ID `7119` mainnet, `7120` testnet). Six independent surfaces under one package — pick the one you actually need; tree-shaking drops the rest:
 
 - **`@sentrix/chain/evm`** — viem-based EVM client (standard EVM dApp door)
 - **`@sentrix/chain/native`** — typed REST client for Sentrix-shaped endpoints (validators, epochs, BFT justification, fork status)
@@ -97,19 +97,24 @@ await mgr.subscribeTyped("newHeads", {
 ### Sign + broadcast a native Sentrix tx
 
 ```ts
-import { wallet, native } from "@sentrix/chain";
+import { native, SentrixWallet } from "@sentrix/chain";
+import { buildTransfer } from "@sentrix/chain/native";
 
-const w = wallet.SentrixWallet.fromPrivateKeyHex(process.env.PRIVATE_KEY!);
+const w = SentrixWallet.fromPrivateKeyHex(process.env.PRIVATE_KEY!);
 const sentrix = native.nativeClient("mainnet");
 
-const tx = await wallet.buildAndSignTransfer(w, {
+const { nonce } = await sentrix.balance(w.address);
+
+const unsigned = buildTransfer({
+  from: w.address,
   to: "0x0804a00f53fde72d46abd1db7ee3e97cbfd0a107",
-  amountSentri: 100_000_000n, // 1 SRX
-  feeSentri: 10_000n,         // 0.0001 SRX
-  nonce: await sentrix.nextNonce(w.address),
-  chainId: 7119,
+  amount: 100_000_000n, // 1 SRX = 100M sentri
+  fee: 10_000n,         // 0.0001 SRX
+  nonce,
+  chainId: 7119n,
 });
-const txid = await sentrix.broadcast(tx);
+const signed = await w.sign(unsigned);
+const { txid } = await sentrix.submitTx(signed);
 ```
 
 The wallet uses the same secp256k1 derivation as Ethereum — your MetaMask private key is also a Sentrix native private key, same address on both rails.
@@ -177,7 +182,7 @@ When you use `evm.httpClient(...).getBalance(...)` you get 18-decimal wei. When 
 
 ## Status
 
-`v0.3.0-rc.0` — five-door surface: EVM (read + write via viem), native REST (typed read + nonce), BFT WebSocket (multiplexed subs + keepalive + typed payloads), wallet (secp256k1 + native tx signing), gRPC (Node-side typed client over the chain's `sentrix.v1.Sentrix` service).
+`v0.3.0-rc.0` — six-door surface: EVM (read + write via viem), native REST (typed read + tx submit + tx builders), BFT WebSocket (multiplexed subs + keepalive + typed payloads), wallet (secp256k1 + native tx signing), gRPC (Node-side typed client over the chain's `sentrix.v1.Sentrix` service), gRPC-Web (browser-side equivalent over `@protobuf-ts/grpcweb-transport`).
 
 ## License
 
