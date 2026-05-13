@@ -1,13 +1,17 @@
 // @sentrix/chain — official TypeScript SDK for Sentrix Chain.
 //
-// One package, three independent surfaces:
-//   - `@sentrix/chain/evm`    — viem-based EVM client (the standard EVM dApp door)
-//   - `@sentrix/chain/native` — native REST client (TokenOps, StakingOps, BFT-aware)
-//   - `@sentrix/chain/bft`    — WebSocket subscription helpers (newHeads + sentrix_*)
+// One package, six independent surfaces (subpath imports for tree-shaking):
+//   - `@sentrix/chain/evm`      — viem-based EVM client (standard EVM dApp door)
+//   - `@sentrix/chain/native`   — typed REST client + native tx builders
+//   - `@sentrix/chain/bft`      — WebSocket subscription manager (newHeads + sentrix_*)
+//   - `@sentrix/chain/wallet`   — secp256k1 keypair + Sentrix-native tx signing
+//   - `@sentrix/chain/grpc`     — Node-side gRPC client (`@grpc/grpc-js`)
+//   - `@sentrix/chain/grpc-web` — browser-side gRPC client (`@protobuf-ts/grpcweb-transport`)
 //
-// Importing the root re-exports everything at one path for the
-// "I want it all" caller, but tree-shaking benefits from picking the
-// surface you actually use.
+// This barrel re-exports the four surfaces that load safely in any
+// environment (evm / native / bft / wallet). gRPC + gRPC-Web stay
+// subpath-only because their transports don't load in the other env
+// (`@grpc/grpc-js` needs raw HTTP/2 sockets browsers don't expose).
 
 export * from "./network.js";
 export * as evm from "./evm/index.js";
